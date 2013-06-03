@@ -5,3 +5,5 @@ venv
 *.egg-info
 build
 dist
+.idea
+atlassian-ide-plugin.xml
