@@ -16,7 +16,7 @@ __doc__ = """
     and allow direct SQL access for more complex operations.
     
     The module wraps the excellent 'psycopg2' library and most of the 
-    functionality is provided by this behind the scenes, excepet for pooling.
+    functionality is provided by this behind the scenes, except for pooling.
 
     The module provides:
 
@@ -242,7 +242,7 @@ __doc__ = """
 
     Credits
     ------------------------
-        My wraper is inherited from pgwrap, an excelent wraper for Postgres but with lacks
+        pypgwrap is inherited from pgwrap, an excelent wraper for Postgres but with lacks
         *   https://github.com/paulchakravarti/pgwrap
 
         Pooling is iherited from Psycopg2

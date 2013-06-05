@@ -67,7 +67,7 @@ class MyTestCase(unittest.TestCase):
         with connection() as db:
             try:
                 exists = db.check_table('doctest_t1')
-                self.assertEqual(exists, True, 'Tabela era para existir, mas nao foi encontrada. Auto-commit falhou.')
+                self.assertEqual(exists, True, 'Table must exist, but was not found. Auto-commit fail.')
             finally:
                 self.drop_tables(db)
 
@@ -83,22 +83,22 @@ class MyTestCase(unittest.TestCase):
             with connection(key=context.key) as db:
                 try:
                     exists = db.check_table('doctest_t1')
-                    self.assertEqual(exists, True, 'Tabela era para existir, mas nao foi encontrada.')
+                    self.assertEqual(exists, True, 'Table must exist, but was not found.')
                 finally:
                     # Drop tables
                     self.drop_tables(db)
 
             db = connection(key=context.key)
             exists = db.check_table('doctest_t1')
-            self.assertEqual(exists, False, 'Tabela nao era para existir, mas foi encontrada.')
+            self.assertEqual(exists, False, 'Table must don''t exist, but was found.')
 
             db2 = connection()
             exists = db2.check_table('doctest_t1')
-            self.assertEqual(exists, False, 'Tabela nao era para existir, mas foi encontrada.')
+            self.assertEqual(exists, False, 'Table must don''t exist, but was found.')
 
         db = connection()
         exists = db.check_table('doctest_t1')
-        self.assertEqual(exists, False, 'Tabela nao era para existir, mas foi encontrada.')
+        self.assertEqual(exists, False, 'Table must don''t exist, but was found.')
 
 
 if __name__ == '__main__':
