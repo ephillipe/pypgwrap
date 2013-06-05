@@ -1,3 +1,5 @@
+__author__ = 'Erick Almeida'
+
 import logging
 import os
 import time

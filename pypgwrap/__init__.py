@@ -1,5 +1,6 @@
 from connection import connection
 
+__author__ = 'Erick Almeida'
 version = "0.1"
 __doc__ = """
 

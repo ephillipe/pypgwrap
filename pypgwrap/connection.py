@@ -1,3 +1,5 @@
+__author__ = 'Erick Almeida'
+
 import os
 from collections import namedtuple
 from psycopg2.extras import DictCursor, NamedTupleCursor

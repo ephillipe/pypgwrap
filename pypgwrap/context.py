@@ -1,4 +1,4 @@
-__author__ = 'erick.dnt'
+__author__ = 'Erick Almeida'
 
 from connection import __connection_pool__
 

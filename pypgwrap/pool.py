@@ -1,7 +1,6 @@
+__author__ = 'Erick Almeida'
+
 import datetime
-
-__author__ = 'erick.dnt'
-
 import psycopg2
 import psycopg2.extensions as _ext
 from psycopg2.pool import PoolError

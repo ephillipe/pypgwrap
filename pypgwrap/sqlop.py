@@ -1,3 +1,5 @@
+__author__ = 'Erick Almeida'
+
 _operators = {'eq': '=',
               'lt': '<',
               'gt': '>',

@@ -1,3 +1,5 @@
+__author__ = 'Erick Almeida'
+
 import code
 import connection
         

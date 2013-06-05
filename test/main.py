@@ -1,4 +1,4 @@
-__author__ = 'erick.dnt'
+__author__ = 'Erick Almeida'
 
 import unittest
 from pypgwrap import connection
