@@ -7,7 +7,7 @@ except ImportError:
 
 version = "0.1"
 description = 'PostgreSQL database wrapper - provides wrapper over psycopg2 supporting a Python API for common sql ' \
-              'functions'
+              'functions, transaction and pooling'
 long_description = file("README.md").read()
 
 
@@ -22,19 +22,19 @@ class GenerateReadme(Command):
         pass
 
     def run(self):
-        import psycopgwrap,textwrap
-        long_description = textwrap.dedent(psycopgwrap.__doc__)
+        import pypgwrap,textwrap
+        long_description = textwrap.dedent(pypgwrap.__doc__)
         open("README.md","w").write(long_description)
 
-setup(name='psycopgwrap',
+setup(name='pypgwrap',
       version = version,
       description = description,
       long_description = long_description,
-      author = 'Paul Chakravarti',
-      author_email = 'paul.chakravarti@gmail.com',
-      url = 'https://github.com/paulchakravarti/pgwrap',
+      author = 'Erick Almeida',
+      author_email = 'ephillipe@gmail.com',
+      url = 'https://github.com/ephillipe/pypgwrap',
       cmdclass = { 'readme' : GenerateReadme },
-      packages = ['psycopgwrap'],
+      packages = ['pypgwrap'],
       install_requires = ['psycopg2'],
       license = 'BSD',
       classifiers = [ "Topic :: Database" ]

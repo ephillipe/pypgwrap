@@ -3,7 +3,7 @@ from connection import connection
 version = "0.1"
 __doc__ = """
 
-    psycopgwrap - efficient PostgreSQL database wrapper
+    pypgwrap - efficient PostgreSQL database wrapper
     -------------------------------------------
 
     The 'efficient' module provides a efficient wrapper over psycopg2 supporting a
@@ -34,8 +34,8 @@ __doc__ = """
     Basic usage
     -----------
 
-    >>> import psycopgwrap
-    >>> db = psycopgwrap.connection(url='postgres://localhost')
+    >>> import pypgwrap
+    >>> db = pypgwrap.connection(url='postgres://localhost')
     >>> with db.cursor() as c:
     ...     c.query('select version()')
     [['PostgreSQL...']]
@@ -71,7 +71,7 @@ __doc__ = """
     returns rows as a pseudo python dictionary) however this can be overridden
     by providing a 'cursor_factory' parameter to the constructor.
 
-    >>> db = psycopgwrap.connection(url='postgres://localhost')
+    >>> db = pypgwrap.connection(url='postgres://localhost')
     >>> with db.cursor() as c:
     ...     c.query('select version()')
     [['PostgreSQL...']]
@@ -237,12 +237,13 @@ __doc__ = """
     Master Repository/Issues
     ------------------------
 
-        *   https://github.com/ephillipe/psycopg-wrap
+        *   https://github.com/ephillipe/pypgwrap
 
     Credits
     ------------------------
         My wraper is inherited from pgwrap, an excelent wraper for Postgres but with lacks
         *   https://github.com/paulchakravarti/pgwrap
+
         Pooling is iherited from Psycopg2
         * https://github.com/psycopg/psycopg2/
 

@@ -1,9 +1,9 @@
 __author__ = 'erick.dnt'
 
 import unittest
-from psycopgwrap import connection
-from psycopgwrap.context import ConnectionContext
-from psycopgwrap.connection import config_pool
+from pypgwrap import connection
+from pypgwrap.context import ConnectionContext
+from pypgwrap.connection import config_pool
 
 
 class MyTestCase(unittest.TestCase):
