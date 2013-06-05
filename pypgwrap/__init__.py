@@ -1,4 +1,5 @@
 from connection import connection
+from connection import config_pool
 
 __author__ = 'Erick Almeida'
 version = "0.1"
@@ -14,8 +15,8 @@ __doc__ = """
     This is not intended to provide ORM-like functionality, just to make it
     easier to interact with PostgreSQL from python code for simple use-cases
     and allow direct SQL access for more complex operations.
-    
-    The module wraps the excellent 'psycopg2' library and most of the 
+
+    The module wraps the excellent 'psycopg2' library and most of the
     functionality is provided by this behind the scenes, except for pooling.
 
     The module provides:
@@ -24,8 +25,8 @@ __doc__ = """
             * Connection pool (inherited by psycopg2.pool)
             * Cursor context handler
             * Context Manager for explicit transactions
-        * Python API to wrap basic SQL functionality 
-            * Simple select,update,delete,join methods extending the cursor 
+        * Python API to wrap basic SQL functionality
+            * Simple select,update,delete,join methods extending the cursor
               context handler (also available as stand-alone methods which
               create an implicit cursor for simple queries) (from pgwrap)
         * Query results as dict (using psycopg2.extras.DictCursor)
@@ -35,28 +36,32 @@ __doc__ = """
     Basic usage
     -----------
 
-    >>> import pypgwrap
-    >>> db = pypgwrap.connection(url='postgres://localhost')
-    >>> with db.cursor() as c:
-    ...     c.query('select version()')
-    [['PostgreSQL...']]
-    >>> v = db.query_one('select version()')
-    >>> v
-    ['PostgreSQL...']
-    >>> v.items()
-    [('version', 'PostgreSQL...')]
-    >>> v['version']
-    'PostgreSQL...'
+        >>> import pypgwrap
+        >>> pypgwrap.config_pool(max_pool=10, pool_expiration=1, url='postgres://localhost/')
+        >>> db = pypgwrap.connection()
+        >>> with db.cursor() as c:
+        ...     c.query('select version()')
+        [['PostgreSQL...']]
+        >>> v = db.query_one('select version()')
+        >>> v
+        ['PostgreSQL...']
+        >>> v.items()
+        [('version', 'PostgreSQL...')]
+        >>> v['version']
+        'PostgreSQL...'
 
     Connection
     ----------
 
-    The connection class initialises an internal connection pool and provides
-    methods to return a cursor object or execute SQL queries directly (using an
-    implicit cursor).
+    The config_pool need some parameters:
+        - max_pool: Maximum of connections created and mainteined in memory
+        - pool_expiration: Idle time (in minutes) for close and destroy memory connection
+        - url: Url with connection parameters
 
-    The intention is that a single instance of this class is created at
-    application start up.
+    The intention of this method is to call at application start up, only!
+
+    The connection class provides methods to return a cursor object or execute SQL queries
+    directly (using an implicit cursor).
 
     Cursor
     ------
@@ -78,7 +83,7 @@ __doc__ = """
     [['PostgreSQL...']]
 
     The cursor context provides the following basic methods:
-    
+
         execute         - execute SQL query and return rowcount
         query           - execute SQL query and fetch results
         query_one       - execute SQL query and fetch first result
@@ -108,15 +113,15 @@ __doc__ = """
         update          - SQL update
         delete          - SQL delete
 
-    The methods can be parameterised to customise the associated query 
-    (see db module for detail): 
+    The methods can be parameterised to customise the associated query
+    (see db module for detail):
 
-        where           - 'where' clause as dict (column operators can be 
-                          specified using the colunm__operator format) 
-                            
+        where           - 'where' clause as dict (column operators can be
+                          specified using the colunm__operator format)
+
                           where = {'name':'abc','status__in':(1,2,3)}
 
-        columns         - list of columns to be returned - these can 
+        columns         - list of columns to be returned - these can
                           be real columns or expressions. If spefified
                           as a tuple the column is explicitly named
                           using the AS operator
@@ -138,7 +143,7 @@ __doc__ = """
 
         returning       - columns to return (string)
 
-    The methods are also available as standalone functions which create an 
+    The methods are also available as standalone functions which create an
     implicit cursor object.
 
     Basic usage:
@@ -176,11 +181,11 @@ __doc__ = """
 
         Prepared statements can be created using the
 
-            connection.prepare(stmt,params,name,call_type) 
+            connection.prepare(stmt,params,name,call_type)
 
-            stmt      : prepared statement (with parameters identified 
+            stmt      : prepared statement (with parameters identified
                         in the statement using the psql $1,$2... notation)
-            params    : list of optional parameter types (usually not 
+            params    : list of optional parameter types (usually not
                         needed - infered by psql)
             name      : name for the prepared statement (usually
                         autogenerated)
@@ -215,7 +220,7 @@ __doc__ = """
         instance of logging.Logger or a file-like object (supporting the write
         method).
 
-        The log message is generated using the self.logf function (called with 
+        The log message is generated using the self.logf function (called with
         the cursor object as a parameter). By default this just returns the
         query string however can be customised as needed. A cursor.timestamp
         attribute is available to allow execution time to be tracked.
