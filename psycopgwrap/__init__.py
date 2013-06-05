@@ -3,28 +3,30 @@ from connection import connection
 version = "0.1"
 __doc__ = """
 
-    pgwrap - simple PostgreSQL database wrapper
+    psycopgwrap - efficient PostgreSQL database wrapper
     -------------------------------------------
 
-    The 'pgwrap' module provides a simple wrapper over psycopg2 supporting a
-    Python API for common sql functions.
+    The 'efficient' module provides a efficient wrapper over psycopg2 supporting a
+    Python API for common sql functions, explicit and implicit transactions mechanism and
+    connection pooling.
 
     This is not intended to provide ORM-like functionality, just to make it
     easier to interact with PostgreSQL from python code for simple use-cases
     and allow direct SQL access for more complex operations.
     
     The module wraps the excellent 'psycopg2' library and most of the 
-    functionality is provided by this behind the scenes.
+    functionality is provided by this behind the scenes, excepet for pooling.
 
     The module provides:
 
         * Simplified handling of connections/cursor
-            * Connection pool (provided by psycopg2.pool)
-            * Cursor context handler 
+            * Connection pool (inherited by psycopg2.pool)
+            * Cursor context handler
+            * Context Manager for explicit transactions
         * Python API to wrap basic SQL functionality 
             * Simple select,update,delete,join methods extending the cursor 
               context handler (also available as stand-alone methods which
-              create an implicit cursor for simple queries)
+              create an implicit cursor for simple queries) (from pgwrap)
         * Query results as dict (using psycopg2.extras.DictCursor)
         * Callable prepared statements
         * Logging support
@@ -32,8 +34,8 @@ __doc__ = """
     Basic usage
     -----------
 
-    >>> import pgwrap
-    >>> db = pgwrap.connection(url='postgres://localhost')
+    >>> import psycopgwrap
+    >>> db = psycopgwrap.connection(url='postgres://localhost')
     >>> with db.cursor() as c:
     ...     c.query('select version()')
     [['PostgreSQL...']]
@@ -69,7 +71,7 @@ __doc__ = """
     returns rows as a pseudo python dictionary) however this can be overridden
     by providing a 'cursor_factory' parameter to the constructor.
 
-    >>> db = pgwrap.connection(url='postgres://localhost')
+    >>> db = psycopgwrap.connection(url='postgres://localhost')
     >>> with db.cursor() as c:
     ...     c.query('select version()')
     [['PostgreSQL...']]
@@ -226,22 +228,23 @@ __doc__ = """
     ---------
 
         *   0.1     19-10-2012  Initial import
-        *   0.2     20-10-2012  Remove psycopg2 dep in setup.py
-        *   0.3     20-10-2012  Remove hstore default for cursor
-        *   0.4     21-10-2012  Add logging support 
-        *   0.5     22-12-2012  Refactor connection class / remove globals
-        *   0.6     23-12-2012  Add support for prepared statements
-        *   0.7     26-12-2012  Add callable prepared statements & named cursor
 
     Author
     ------
 
-        *   Paul Chakravarti (paul.chakravarti@gmail.com)
+        *   Erick Phillipe R. de Almeida (ephillipe@gmail.com)
 
     Master Repository/Issues
     ------------------------
 
+        *   https://github.com/ephillipe/psycopg-wrap
+
+    Credits
+    ------------------------
+        My wraper is inherited from pgwrap, an excelent wraper for Postgres but with lacks
         *   https://github.com/paulchakravarti/pgwrap
+        Pooling is iherited from Psycopg2
+        * https://github.com/psycopg/psycopg2/
 
 """
 
