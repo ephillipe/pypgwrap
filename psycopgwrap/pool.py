@@ -16,6 +16,7 @@ class AbstractConnectionPool(object):
         self._rused = {}  # id(conn) -> key map
         self._tused = {}
         self._keys = 0
+        self.closed = False
 
     def configure(self, expiration, maxconn, *args, **kwargs):
         """Initialize the connection pool.
@@ -26,7 +27,6 @@ class AbstractConnectionPool(object):
         """
         self.expiration = expiration
         self.maxconn = maxconn
-        self.closed = False
 
         self._args = args
         self._kwargs = kwargs

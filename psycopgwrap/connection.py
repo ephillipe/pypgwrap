@@ -82,19 +82,25 @@ class connection(object):
         return _wrapper
 
     def commit(self):
+        if self.key:
+            raise Exception('Connection was associated with Connection Context. Commits are not allowed.')
         self.connection.commit()
 
     def rollback(self):
+        if self.key:
+            raise Exception('Connection was associated with Connection Context. Rollbacks are not allowed.')
         self.connection.rollback()
 
     def __enter__(self, name=None):
         return self
 
     def __exit__(self, type, value, traceback):
-        if not isinstance(value, Exception):
-            self.commit()
-        else:
-            self.rollback()
+        if not self.key:
+            if not isinstance(value, Exception):
+                self.commit()
+            else:
+                self.rollback()
 
     def __del__(self):
-        self.pool.putconn(self.connection, key=self.key)
+        if not self.key:
+            self.pool.putconn(self.connection)
