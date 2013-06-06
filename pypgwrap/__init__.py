@@ -102,9 +102,6 @@ __doc__ = """
 
         Distributed transactions, with ContextManager:
 
-            >>> import uuid
-            >>> key = uuid.uuid4()
-
             >>> with pypgwrap.ContextManager() as context:
 
             >>>     with pypgwrap.connection(key=context.key) as db:
