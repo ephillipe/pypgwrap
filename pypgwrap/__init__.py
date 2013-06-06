@@ -1,5 +1,6 @@
 from connection import connection
 from connection import config_pool
+from context import ContextManager
 
 __author__ = 'Erick Almeida'
 version = "0.1"
@@ -50,6 +51,75 @@ __doc__ = """
         >>> v['version']
         'PostgreSQL...'
 
+
+    Basic usage, with transaction
+    -----------
+        Init pool at application start:
+
+            >>> import pypgwrap
+            >>> pypgwrap.config_pool(max_pool=10, pool_expiration=1, url='postgres://localhost/')
+
+        Explicit transactions:
+
+            >>> db = pypgwrap.connection()
+            >>> db.create_table('t1', '''id SERIAL PRIMARY KEY,
+                                       name TEXT NOT NULL,
+                                       count INTEGER NOT NULL DEFAULT 0,
+                                       active BOOLEAN NOT NULL DEFAULT true''')
+            >>> id0 = db.insert('doctest_t1', {'name': 'name_one'}, returning='id')['id']
+            >>> id1 = db.insert('doctest_t1', {'name': 'name_two'}, returning='id')['id']
+            >>> db.commit()
+
+        Implicity transactions:
+
+            >>> with pypgwrap.connection() as db:
+            >>>     db.create_table('t1', '''id SERIAL PRIMARY KEY,
+                                          name TEXT NOT NULL,
+                                          count INTEGER NOT NULL DEFAULT 0,
+                                          active BOOLEAN NOT NULL DEFAULT true''')
+            >>>     id0 = db.insert('doctest_t1', {'name': 'name_one'}, returning='id')['id']
+            >>>     id1 = db.insert('doctest_t1', {'name': 'name_two'}, returning='id')['id']
+
+        Distributed transactions:
+
+            >>> import uuid
+            >>> key = uuid.uuid4()
+
+            >>> with pypgwrap.connection(key=key) as db:
+            >>>     db.create_table('t1', '''id SERIAL PRIMARY KEY,
+                                          name TEXT NOT NULL,
+                                          count INTEGER NOT NULL DEFAULT 0,
+                                          active BOOLEAN NOT NULL DEFAULT true''')
+            >>>     id0 = db.insert('doctest_t1', {'name': 'name_one'}, returning='id')['id']
+            >>>     id1 = db.insert('doctest_t1', {'name': 'name_two'}, returning='id')['id']
+
+            >>> db2 = pypgwrap.connection(key=key)
+            >>> id3 = db.insert('doctest_t1', {'name': 'name_three'}, returning='id')['id']
+            >>> id4 = db.insert('doctest_t1', {'name': 'name_four'}, returning='id')['id']
+
+            >>> db3 = pypgwrap.connection(key=key)
+            >>> db3.commit()
+
+        Distributed transactions, with ContextManager:
+
+            >>> import uuid
+            >>> key = uuid.uuid4()
+
+            >>> with pypgwrap.ContextManager() as context:
+
+            >>>     with pypgwrap.connection(key=context.key) as db:
+            >>>         db.create_table('t1', '''id SERIAL PRIMARY KEY,
+                                              name TEXT NOT NULL,
+                                              count INTEGER NOT NULL DEFAULT 0,
+                                              active BOOLEAN NOT NULL DEFAULT true''')
+            >>>         id0 = db.insert('doctest_t1', {'name': 'name_one'}, returning='id')['id']
+            >>>         id1 = db.insert('doctest_t1', {'name': 'name_two'}, returning='id')['id']
+
+            >>>     db2 = pypgwrap.connection(key)
+            >>>     id3 = db.insert('doctest_t1', {'name': 'name_three'}, returning='id')['id']
+            >>>     id4 = db.insert('doctest_t1', {'name': 'name_four'}, returning='id')['id']
+
+
     Connection
     ----------
 
@@ -63,21 +133,22 @@ __doc__ = """
     The connection class provides methods to return a cursor object or execute SQL queries
     directly (using an implicit cursor).
 
+    The connection context provides the following basic methods:
+
+        cursor          - create a new instance of cursor class
+        commit          - Commit transaction (called implicitly on exiting context handler)
+        rollback        - Rollback transaction
+
     Cursor
     ------
 
     The module provides a cursor context handler wrapping the psycopg2 cursor.
 
-    Entering the cursor context handler will obtain a connection from the
-    connection pool and create a cursor using this connection. When the context
-    handler is exited the associated transaction will be committed, cursor
-    closed, and the connection released back to the connection pool.
-
     The cursor object uses the psycopg2 'DictCursor' by default (which
     returns rows as a pseudo python dictionary) however this can be overridden
     by providing a 'cursor_factory' parameter to the constructor.
 
-    >>> db = pypgwrap.connection(url='postgres://localhost')
+    >>> db = pypgwrap.connection()
     >>> with db.cursor() as c:
     ...     c.query('select version()')
     [['PostgreSQL...']]
@@ -89,9 +160,6 @@ __doc__ = """
         query_one       - execute SQL query and fetch first result
         query_dict      - execute SQL query and return results as dict
                           keyed on specified key (which should be unique)
-        commit          - Commit transaction (called implicitly on exiting
-                          context handler)
-        rollback        - Rollback transaction
 
     In addition the cursor can use the SQL API methods described below or
     access the underlying psycopg2 cursor (via the self.cursor attribute).
@@ -105,10 +173,8 @@ __doc__ = """
     The cursor class also provides a simple Python API for common SQL
     operations.  The basic methods provides are:
 
-        select          - single table select (with corresponding select_one,
-                          select_dict methods)
-        join            - two table join (with corresponding join_one,
-                          join_dict methods)
+        select          - single table select (with corresponding select_one, select_dict methods)
+        join            - two table join (with corresponding join_one, join_dict methods)
         insert          - SQL insert
         update          - SQL update
         delete          - SQL delete

@@ -2,7 +2,7 @@ __author__ = 'Erick Almeida'
 
 import unittest
 from pypgwrap import connection
-from pypgwrap.context import ConnectionContext
+from pypgwrap.context import ContextManager
 from pypgwrap.connection import config_pool
 
 
@@ -73,7 +73,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_connection_commit_by_key(self):
 
-        with ConnectionContext() as context:
+        with ContextManager() as context:
 
             with connection(key=context.key) as db:
                 # Setup tables

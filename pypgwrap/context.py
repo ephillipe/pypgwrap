@@ -3,7 +3,7 @@ __author__ = 'Erick Almeida'
 from connection import __connection_pool__
 
 
-class ConnectionContext(object):
+class ContextManager(object):
     def __enter__(self):
         import uuid
 
