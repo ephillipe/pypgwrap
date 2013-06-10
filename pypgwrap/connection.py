@@ -83,13 +83,13 @@ class connection(object):
 
         return _wrapper
 
-    def commit(self):
-        if self.key:
-            raise Exception('Connection was associated with Connection Context. Commits are not allowed.')
+    def commit(self, context_transaction=False):
+        if self.key and not context_transaction:
+            raise Exception('Connection was associated with Connection Context. Commits are not allowed. Use context_transaction if you want do it.')
         self.connection.commit()
 
-    def rollback(self):
-        if self.key:
+    def rollback(self, context_transaction=False):
+        if self.key and not context_transaction:
             raise Exception('Connection was associated with Connection Context. Rollbacks are not allowed.')
         self.connection.rollback()
 

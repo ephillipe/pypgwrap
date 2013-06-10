@@ -14,9 +14,9 @@ class ContextManager(object):
     def __exit__(self, type, value, traceback):
         connection = self.pool.getconn(self._key)
         if not isinstance(value, Exception):
-            connection.commit()
+            connection.commit(context_transaction=True)
         else:
-            connection.rollback()
+            connection.rollback(context_transaction=True)
         self.pool.putconn(connection, self._key)
 
     @property
