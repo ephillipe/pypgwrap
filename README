@@ -290,7 +290,8 @@ Logging
 Changelog
 ---------
 
-    *   0.1     19-10-2012  Initial import
+    *   0.1.0     03-06-2013  Initial import
+    *   0.1.1     10-06-2013  Transaction context issues
 
 Author
 ------
