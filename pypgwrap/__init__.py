@@ -3,7 +3,7 @@ from connection import config_pool
 from context import ContextManager
 
 __author__ = 'Erick Almeida'
-version = "0.1.3"
+version = "0.1.4"
 __doc__ = """
 
     pypgwrap - efficient PostgreSQL database wrapper
@@ -299,7 +299,8 @@ __doc__ = """
         *   0.1.0     03-06-2013  Initial import
         *   0.1.1     10-06-2013  Transaction context issues
         *   0.1.2     11-06-2013  ContextManager commit issues
-        *   0.1.3     11-06-2013  ContextManager __exit__ fail on TypeError exception
+        *   0.1.3     07-08-2013  ContextManager __exit__ fail on TypeError exception
+        *   0.1.4     07-08-2013  ContextManager __exit__ fail on TypeError exception
 
     Author
     ------

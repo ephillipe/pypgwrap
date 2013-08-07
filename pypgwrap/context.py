@@ -13,7 +13,7 @@ class ContextManager(object):
 
     def __exit__(self, type, value, traceback):
         conn = pypgwrap.connection(key=self._key)
-        is_exception = issubclass(type, Exception) or isinstance(value, Exception)
+        is_exception = isinstance(value, Exception) or ((not (type is None)) and issubclass(type, Exception))
         if not is_exception:
             conn.commit(context_transaction=True)
         else:
