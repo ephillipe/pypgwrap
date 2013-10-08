@@ -1,10 +1,15 @@
+from psycopg2._psycopg import OperationalError
+from psycopg2.pool import PoolError
+
 __author__ = 'Erick Almeida'
 
 import os
 from collections import namedtuple
 from psycopg2.extras import DictCursor, NamedTupleCursor
-from pool import SimpleConnectionPool
+from pool import SimpleConnectionPool, ThreadedConnectionPool
 from cursor import cursor, PreparedStatement
+
+__connection_pool__ = SimpleConnectionPool()
 
 
 class SafeNamedTupleCursor(NamedTupleCursor):
@@ -12,10 +17,12 @@ class SafeNamedTupleCursor(NamedTupleCursor):
         return namedtuple("Record", [d[0] for d in self.description or ()], rename=True)
 
 
-def config_pool(max_pool=5, pool_expiration=5, url=None):
+def config_pool(max_pool=5, pool_expiration=5, url=None, pool_manager=SimpleConnectionPool):
     import urlparse
 
     params = urlparse.urlparse(url or os.environ.get('DATABASE_URL') or 'postgres://localhost/')
+    global __connection_pool__
+    __connection_pool__ = pool_manager()
     __connection_pool__.configure(expiration=pool_expiration,
                                   maxconn=max_pool,
                                   database=params.path[1:],
@@ -25,14 +32,20 @@ def config_pool(max_pool=5, pool_expiration=5, url=None):
                                   port=params.port)
 
 
-__connection_pool__ = SimpleConnectionPool()
+def get_pool():
+    global __connection_pool__
+    return __connection_pool__
 
 
 class connection(object):
     def __init__(self, hstore=False, log=None, logf=None, default_cursor=DictCursor, key=None):
-        self.pool = __connection_pool__
+        self.pool = get_pool()
         self.key = key
-        self.connection = self.pool.getconn(self.key)
+        try:
+            self.connection = self.pool.getconn(self.key)
+        except (PoolError, OperationalError) as e:
+            self.connection = None
+            raise e
         self.hstore = hstore
         self.log = log
         self.logf = logf or (lambda cursor: cursor.query)
@@ -84,14 +97,16 @@ class connection(object):
         return _wrapper
 
     def commit(self, context_transaction=False):
-        if self.key and not context_transaction:
-            raise Exception('Connection was associated with Connection Context. Commits are not allowed. Use context_transaction if you want do it.')
-        self.connection.commit()
+        if self.connection:
+            if self.key and not context_transaction:
+                raise Exception('Connection was associated with Connection Context. Commits are not allowed. Use context_transaction if you want do it.')
+            self.connection.commit()
 
     def rollback(self, context_transaction=False):
-        if self.key and not context_transaction:
-            raise Exception('Connection was associated with Connection Context. Rollbacks are not allowed.')
-        self.connection.rollback()
+        if self.connection:
+            if self.key and not context_transaction:
+                raise Exception('Connection was associated with Connection Context. Rollbacks are not allowed.')
+            self.connection.rollback()
 
     def __enter__(self, name=None):
         return self
@@ -104,5 +119,5 @@ class connection(object):
                 self.rollback()
 
     def __del__(self):
-        if not self.key:
+        if not self.key and self.connection:
             self.pool.putconn(self.connection)

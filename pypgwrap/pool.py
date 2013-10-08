@@ -89,7 +89,7 @@ class AbstractConnectionPool(object):
         if key is None:
             key = self._rused.get(id(conn))
         if not key:
-            raise PoolError("trying to put unkeyed connection")
+            raise PoolError("trying to put unkeyed [{key}] connection".format(key=key))
 
         if len(self._pool) < self.maxconn and not close:
             # Return the connection into a consistent state before putting
@@ -149,7 +149,7 @@ class SimpleConnectionPool(AbstractConnectionPool):
 class ThreadedConnectionPool(AbstractConnectionPool):
     """A connection pool that works with the threading module."""
 
-    def __init__(self, minconn, maxconn, *args, **kwargs):
+    def __init__(self):
         """Initialize the threading lock."""
         import threading
         AbstractConnectionPool.__init__(self)

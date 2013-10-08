@@ -3,7 +3,7 @@ from connection import config_pool
 from context import ContextManager
 
 __author__ = 'Erick Almeida'
-version = "0.1.4"
+version = "0.1.5"
 __doc__ = """
 
     pypgwrap - efficient PostgreSQL database wrapper
@@ -23,7 +23,7 @@ __doc__ = """
     The module provides:
 
         * Simplified handling of connections/cursor
-            * Connection pool (inherited by psycopg2.pool)
+            * Connection pool, single or multithreaded (inherited by psycopg2.pool)
             * Cursor context handler
             * Context Manager for explicit transactions
         * Python API to wrap basic SQL functionality
@@ -38,7 +38,7 @@ __doc__ = """
     -----------
 
         >>> import pypgwrap
-        >>> pypgwrap.config_pool(max_pool=10, pool_expiration=1, url='postgres://localhost/')
+        >>> pypgwrap.config_pool(max_pool=10, pool_expiration=1, url='postgres://localhost/', pool_manager=SimpleConnectionPool)
         >>> db = pypgwrap.connection()
         >>> with db.cursor() as c:
         ...     c.query('select version()')
@@ -57,7 +57,7 @@ __doc__ = """
         Init pool at application start:
 
             >>> import pypgwrap
-            >>> pypgwrap.config_pool(max_pool=10, pool_expiration=1, url='postgres://localhost/')
+            >>> pypgwrap.config_pool(max_pool=10, pool_expiration=1, url='postgres://localhost/', pool_manager=SimpleConnectionPool)
 
         Explicit transactions:
 
@@ -301,6 +301,9 @@ __doc__ = """
         *   0.1.2     11-06-2013  ContextManager commit issues
         *   0.1.3     07-08-2013  ContextManager __exit__ fail on TypeError exception
         *   0.1.4     07-08-2013  ContextManager __exit__ fail on TypeError exception
+        *   0.1.5     08-10-2013  - ThreadedConnectionPool fix when pool is exausted or max_con of Postgres is reached.
+                                  - Created a param [pool_manager] in config_pool method. Params: SimpleConnectionPool,
+                                  ThreadedConnectionPool. In Multthread enviroments must use ThreadedConnectionPool.
 
     Author
     ------
@@ -319,6 +322,13 @@ __doc__ = """
 
         Pooling is iherited from Psycopg2
         * https://github.com/psycopg/psycopg2/
+
+    About me
+    ------------------------
+        *   http://about.me/erick.almeida
+        *   http://erickalmeida.brandyourself.com
+
+
 
 """
 

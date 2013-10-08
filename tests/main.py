@@ -4,12 +4,16 @@ import unittest
 from pypgwrap import connection
 from pypgwrap.context import ContextManager
 from pypgwrap.connection import config_pool
+from pypgwrap.pool import SimpleConnectionPool, ThreadedConnectionPool
 
 
 class MyTestCase(unittest.TestCase):
     def setUp(self):
         super(MyTestCase, self).setUp()
-        config_pool(max_pool=10, pool_expiration=1, url='postgres://postgres:150282@localhost/')
+        config_pool(max_pool=250,
+                    pool_expiration=1,
+                    url='postgres://postgres:150282@localhost/',
+                    pool_manager=ThreadedConnectionPool)
         self.tables = (('doctest_t1', '''id SERIAL PRIMARY KEY,
                                    name TEXT NOT NULL,
                                    count INTEGER NOT NULL DEFAULT 0,
@@ -99,6 +103,50 @@ class MyTestCase(unittest.TestCase):
         db = connection()
         exists = db.check_table('doctest_t1')
         self.assertEqual(exists, False, 'Table must don''t exist, but was found.')
+
+    def test_threaded_connections(self):
+
+        import threading
+
+        class myThread(threading.Thread):
+            def __init__(self, threadID, name, counter, key):
+                threading.Thread.__init__(self)
+                self.threadID = threadID
+                self.name = name
+                self.counter = counter
+                self.key = key
+
+            def run(self):
+                print("Starting " + self.name)
+                database_operations(self.key)
+                print("Exiting " + self.name)
+
+        def database_operations(key):
+            #with connection(key=key) as db:
+            with connection() as db:
+                exists = db.check_table('doctest_t1')
+                #self.assertEqual(exists, True, 'Table must exist, but was not found.')
+
+        with ContextManager() as context:
+            with connection(key=context.key) as db:
+                # Setup tables
+                self.drop_tables(db)
+                self.create_tables(db, fill=True)
+            threads = []
+            # Create new threads
+            for i in range(500):
+                newThread = myThread(i, "Thread-" + str(i), i, key=context.key)
+                threads.append(newThread)
+                # Start new Threads
+            for t in threads:
+                t.start()
+                # Wait for all threads to complete
+            for t in threads:
+                t.join()
+                # Drop tables
+            with connection(key=context.key) as db:
+                self.drop_tables(db)
+            print "Exiting Main Thread \n"
 
 
 if __name__ == '__main__':

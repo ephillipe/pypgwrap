@@ -1,6 +1,6 @@
 __author__ = 'Erick Almeida'
 
-from connection import __connection_pool__
+from connection import get_pool
 import pypgwrap
 
 
@@ -8,7 +8,7 @@ class ContextManager(object):
     def __enter__(self):
         import uuid
         self._key = uuid.uuid4()
-        self.pool = __connection_pool__
+        self.pool = get_pool()
         return self
 
     def __exit__(self, type, value, traceback):
