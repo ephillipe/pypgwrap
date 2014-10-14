@@ -3,7 +3,7 @@ from connection import config_pool
 from context import ContextManager
 
 __author__ = 'Erick Almeida'
-version = "0.1.5"
+version = "0.1.6"
 __doc__ = """
 
     pypgwrap - efficient PostgreSQL database wrapper
@@ -304,6 +304,9 @@ __doc__ = """
         *   0.1.5     08-10-2013  - ThreadedConnectionPool fix when pool is exausted or max_con of Postgres is reached.
                                   - Created a param [pool_manager] in config_pool method. Params: SimpleConnectionPool,
                                   ThreadedConnectionPool. In Multthread enviroments must use ThreadedConnectionPool.
+        *   0.1.6     14-10-2014  - Bugfix. Fix import of OperationalError. Avoid use protected member of psycopg2.
+                                  - Change "from psycopg2._psycopg import OperationalError" to
+                                    "from psycopg2 import OperationalError"
 
     Author
     ------

@@ -1,6 +1,3 @@
-from psycopg2._psycopg import OperationalError
-from psycopg2.pool import PoolError
-
 __author__ = 'Erick Almeida'
 
 import os
@@ -8,6 +5,8 @@ from collections import namedtuple
 from psycopg2.extras import DictCursor, NamedTupleCursor
 from pool import SimpleConnectionPool, ThreadedConnectionPool
 from cursor import cursor, PreparedStatement
+from psycopg2 import OperationalError
+from psycopg2.pool import PoolError
 
 __connection_pool__ = SimpleConnectionPool()
 
