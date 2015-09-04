@@ -8,7 +8,7 @@ from cursor import cursor, PreparedStatement
 from psycopg2 import OperationalError
 from psycopg2.pool import PoolError
 
-__connection_pool__ = SimpleConnectionPool()
+__connection_pool__ = ThreadedConnectionPool()
 
 
 class SafeNamedTupleCursor(NamedTupleCursor):
@@ -16,7 +16,7 @@ class SafeNamedTupleCursor(NamedTupleCursor):
         return namedtuple("Record", [d[0] for d in self.description or ()], rename=True)
 
 
-def config_pool(max_pool=5, pool_expiration=5, url=None, pool_manager=SimpleConnectionPool):
+def config_pool(max_pool=5, pool_expiration=5, url=None, pool_manager=ThreadedConnectionPool):
     import urlparse
 
     params = urlparse.urlparse(url or os.environ.get('DATABASE_URL') or 'postgres://localhost/')

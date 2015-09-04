@@ -138,25 +138,6 @@ class AbstractConnectionPool(object):
         self._closeall()
 
 
-class DisabledConnectionPool(AbstractConnectionPool):
-    """A disabled connection pool."""
-
-    def __init__(self):
-        AbstractConnectionPool.__init__(self)
-
-    def getconn(self, key=None):
-        """Get a new connection and assign it to 'key' if not None."""
-        return self._connect(key)
-
-    def putconn(self, conn=None, key=None, close=True):
-        """Close an connection."""
-        self._disconnect(conn)
-
-    def closeall(self):
-        """Close all connections (even the one currently in use.)"""
-        self._closeall()
-
-
 class SimpleConnectionPool(AbstractConnectionPool):
     """A connection pool that can't be shared across different threads."""
 
@@ -197,3 +178,14 @@ class ThreadedConnectionPool(AbstractConnectionPool):
             self._closeall()
         finally:
             self._lock.release()
+
+
+class AutoCloseConnectionPool(ThreadedConnectionPool):
+    """A disabled connection pool."""
+
+    def __init__(self):
+        ThreadedConnectionPool.__init__(self)
+
+    def putconn(self, conn=None, key=None, close=True):
+        """Close an connection."""
+        ThreadedConnectionPool.putconn(self, conn, key, close)
