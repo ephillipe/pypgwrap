@@ -185,28 +185,18 @@ class AutoCloseConnectionPool(AbstractConnectionPool):
 
     def __init__(self):
         """Initialize the threading lock."""
-        import threading
         AbstractConnectionPool.__init__(self)
-        self._lock = threading.Lock()
 
     def getconn(self, key=None):
-        """Get a free connection and assign it to 'key' if not None."""
-        self._lock.acquire()
-        try:
-            """Create a new connection and assign it to 'key' if not None."""
-            conn = psycopg2.connect(*self._args, **self._kwargs)
-            return conn
-        finally:
-            self._lock.release()
+        """Create a new connection"""
+        conn = psycopg2.connect(*self._args, **self._kwargs)
+        return conn
+
 
     def putconn(self, conn=None, key=None, close=False):
         """Put away an unused connection."""
         if conn:
-            self._lock.acquire()
-            try:
-                conn.close()
-            finally:
-                self._lock.release()
+            conn.close()
 
     def closeall(self):
         """Close all connections (even the one currently in use.)"""
