@@ -180,12 +180,34 @@ class ThreadedConnectionPool(AbstractConnectionPool):
             self._lock.release()
 
 
-class AutoCloseConnectionPool(ThreadedConnectionPool):
-    """A disabled connection pool."""
+class AutoCloseConnectionPool(AbstractConnectionPool):
+    """A connection pool that works with the threading module."""
 
     def __init__(self):
-        ThreadedConnectionPool.__init__(self)
+        """Initialize the threading lock."""
+        import threading
+        AbstractConnectionPool.__init__(self)
+        self._lock = threading.Lock()
 
-    def putconn(self, conn=None, key=None, close=True):
-        """Close an connection."""
-        ThreadedConnectionPool.putconn(self, conn, key, close)
+    def getconn(self, key=None):
+        """Get a free connection and assign it to 'key' if not None."""
+        self._lock.acquire()
+        try:
+            """Create a new connection and assign it to 'key' if not None."""
+            conn = psycopg2.connect(*self._args, **self._kwargs)
+            return conn
+        finally:
+            self._lock.release()
+
+    def putconn(self, conn=None, key=None, close=False):
+        """Put away an unused connection."""
+        if conn:
+            self._lock.acquire()
+            try:
+                conn.close()
+            finally:
+                self._lock.release()
+
+    def closeall(self):
+        """Close all connections (even the one currently in use.)"""
+        pass
