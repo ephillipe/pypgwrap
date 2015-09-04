@@ -3,7 +3,7 @@ from connection import config_pool
 from context import ContextManager
 
 __author__ = 'Erick Almeida'
-version = "0.1.6"
+version = "0.1.9"
 __doc__ = """
 
     pypgwrap - efficient PostgreSQL database wrapper
@@ -307,6 +307,7 @@ __doc__ = """
         *   0.1.6     14-10-2014  - Bugfix. Fix import of OperationalError. Avoid use protected member of psycopg2.
                                   - Change "from psycopg2._psycopg import OperationalError" to
                                     "from psycopg2 import OperationalError"
+        *   0.1.9     04-09-2015  Non Threaded AutoCloseConnectionPool to use with pgpool
 
     Author
     ------
