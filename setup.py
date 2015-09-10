@@ -5,7 +5,7 @@ try:
 except ImportError:
     from distutils.core import Command, setup
 
-version = "0.1.8"
+version = "0.1.10"
 description = 'PostgreSQL database wrapper - provides wrapper over psycopg2 supporting a Python API for common sql ' \
               'functions, transaction and pooling'
 long_description = file("README").read()

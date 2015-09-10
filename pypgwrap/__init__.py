@@ -3,7 +3,7 @@ from connection import config_pool
 from context import ContextManager
 
 __author__ = 'Erick Almeida'
-version = "0.1.9"
+version = "0.1.10"
 __doc__ = """
 
     pypgwrap - efficient PostgreSQL database wrapper
