@@ -3,7 +3,7 @@ from connection import config_pool
 from context import ContextManager
 
 __author__ = 'Erick Almeida'
-version = "0.1.11"
+version = "0.1.12"
 __doc__ = """
 
     pypgwrap - efficient PostgreSQL database wrapper
@@ -308,6 +308,11 @@ __doc__ = """
                                   - Change "from psycopg2._psycopg import OperationalError" to
                                     "from psycopg2 import OperationalError"
         *   0.1.11    04-09-2015  Non Threaded AutoCloseConnectionPool to use with pgpool
+        *   0.1.12    04-09-2015  Deleted class AutoCloseConnectionPool.
+                                  - Create configuration in env PYPGWRAP_CLOSE_CONNECTION_ON_EXIT to control
+                                    when pypgwrap disable pool. When this env variable is True, all connections
+                                    is discarded when execution is finished. No pooling is persisted. Util to use with
+                                    PgPool or external pooling tools.
 
     Author
     ------

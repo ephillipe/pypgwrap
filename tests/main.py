@@ -1,3 +1,6 @@
+import os
+from time import sleep
+
 __author__ = 'Erick Almeida'
 
 import unittest
@@ -10,9 +13,10 @@ from pypgwrap.pool import SimpleConnectionPool, ThreadedConnectionPool
 class MyTestCase(unittest.TestCase):
     def setUp(self):
         super(MyTestCase, self).setUp()
-        config_pool(max_pool=250,
-                    pool_expiration=1,
-                    url='postgres://postgres:150282@localhost/',
+        os.environ["PYPGWRAP_CLOSE_CONNECTION_ON_EXIT"] = str(False)
+        config_pool(max_pool=75,
+                    pool_expiration=10,
+                    url='postgres://postgres:150282@localhost:5432/',
                     pool_manager=ThreadedConnectionPool)
         self.tables = (('doctest_t1', '''id SERIAL PRIMARY KEY,
                                    name TEXT NOT NULL,
@@ -21,7 +25,7 @@ class MyTestCase(unittest.TestCase):
                        ('doctest_t2', '''id SERIAL PRIMARY KEY,
                                    value TEXT NOT NULL,
                                    doctest_t1_id INTEGER NOT NULL REFERENCES doctest_t1(id)''')
-        )
+                       )
 
     def drop_tables(self, db):
         db.drop_table('doctest_t1')
@@ -122,10 +126,10 @@ class MyTestCase(unittest.TestCase):
                 print("Exiting " + self.name)
 
         def database_operations(key):
-            #with connection(key=key) as db:
+            # with connection(key=key) as db:
             with connection() as db:
                 exists = db.check_table('doctest_t1')
-                #self.assertEqual(exists, True, 'Table must exist, but was not found.')
+                # self.assertEqual(exists, True, 'Table must exist, but was not found.')
 
         with ContextManager() as context:
             with connection(key=context.key) as db:
@@ -139,6 +143,7 @@ class MyTestCase(unittest.TestCase):
                 threads.append(newThread)
                 # Start new Threads
             for t in threads:
+                sleep(0.007)
                 t.start()
                 # Wait for all threads to complete
             for t in threads:
@@ -148,7 +153,9 @@ class MyTestCase(unittest.TestCase):
                 self.drop_tables(db)
             print "Exiting Main Thread \n"
 
+            while True:
+                sleep(0.006)
+
 
 if __name__ == '__main__':
     unittest.main()
-

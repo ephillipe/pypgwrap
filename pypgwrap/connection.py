@@ -1,8 +1,11 @@
+import ast
+
 __author__ = 'Erick Almeida'
 
 import os
 from collections import namedtuple
 from psycopg2.extras import DictCursor, NamedTupleCursor
+import psycopg2.extensions as _ext
 from pool import SimpleConnectionPool, ThreadedConnectionPool
 from cursor import cursor, PreparedStatement
 from psycopg2 import OperationalError
@@ -36,10 +39,13 @@ def get_pool():
     return __connection_pool__
 
 
+
 class connection(object):
     def __init__(self, hstore=False, log=None, logf=None, default_cursor=DictCursor, key=None):
         self.pool = get_pool()
         self.key = key
+        self.close_on_exit = ast.literal_eval(os.getenv('PYPGWRAP_CLOSE_CONNECTION_ON_EXIT', False))
+        self.closed = False
         try:
             self.connection = self.pool.getconn(self.key)
         except (PoolError, OperationalError) as e:
@@ -107,6 +113,13 @@ class connection(object):
                 raise Exception('Connection was associated with Connection Context. Rollbacks are not allowed.')
             self.connection.rollback()
 
+    def close(self, context_transaction=False):
+        if self.connection:
+            if self.key and not context_transaction:
+                raise Exception('Connection was associated with Connection Context. Commits are not allowed. Use context_transaction if you want do it.')
+            self.pool.putconn(self.connection, close=self.close_on_exit)
+            self.closed = True
+
     def __enter__(self, name=None):
         return self
 
@@ -116,7 +129,9 @@ class connection(object):
                 self.commit()
             else:
                 self.rollback()
+            self.close()
 
     def __del__(self):
-        if not self.key and self.connection:
-            self.pool.putconn(self.connection)
+        if not self.key and self.connection and not self.closed:
+            conn = self.connection
+            self.pool.putconn(conn, close=self.close_on_exit)

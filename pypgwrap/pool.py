@@ -178,26 +178,3 @@ class ThreadedConnectionPool(AbstractConnectionPool):
             self._closeall()
         finally:
             self._lock.release()
-
-
-class AutoCloseConnectionPool(AbstractConnectionPool):
-    """A connection pool that works with the threading module."""
-
-    def __init__(self):
-        """Initialize the threading lock."""
-        AbstractConnectionPool.__init__(self)
-
-    def getconn(self, key=None):
-        """Create a new connection"""
-        conn = psycopg2.connect(*self._args, **self._kwargs)
-        return conn
-
-
-    def putconn(self, conn=None, key=None, close=False):
-        """Put away an unused connection."""
-        if conn:
-            conn.close()
-
-    def closeall(self):
-        """Close all connections (even the one currently in use.)"""
-        pass
