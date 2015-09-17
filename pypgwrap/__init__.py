@@ -3,7 +3,7 @@ from connection import config_pool
 from context import ContextManager
 
 __author__ = 'Erick Almeida'
-version = "0.1.12"
+version = "0.1.13"
 __doc__ = """
 
     pypgwrap - efficient PostgreSQL database wrapper
@@ -313,6 +313,7 @@ __doc__ = """
                                     when pypgwrap disable pool. When this env variable is True, all connections
                                     is discarded when execution is finished. No pooling is persisted. Util to use with
                                     PgPool or external pooling tools.
+        *   0.1.13    17-09-2015  Fix use of ast.literal_eval to read Environment variable
 
     Author
     ------

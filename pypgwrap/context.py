@@ -12,7 +12,7 @@ class ContextManager(object):
         import uuid
         self._key = uuid.uuid4()
         self.pool = get_pool()
-        self.close_on_exit = ast.literal_eval(os.getenv('PYPGWRAP_CLOSE_CONNECTION_ON_EXIT', False))
+        self.close_on_exit = ast.literal_eval(os.getenv('PYPGWRAP_CLOSE_CONNECTION_ON_EXIT', "False"))
         return self
 
     def __exit__(self, type, value, traceback):

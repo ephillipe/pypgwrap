@@ -39,12 +39,11 @@ def get_pool():
     return __connection_pool__
 
 
-
 class connection(object):
     def __init__(self, hstore=False, log=None, logf=None, default_cursor=DictCursor, key=None):
         self.pool = get_pool()
         self.key = key
-        self.close_on_exit = ast.literal_eval(os.getenv('PYPGWRAP_CLOSE_CONNECTION_ON_EXIT', False))
+        self.close_on_exit = ast.literal_eval(os.getenv('PYPGWRAP_CLOSE_CONNECTION_ON_EXIT', "False"))
         self.closed = False
         try:
             self.connection = self.pool.getconn(self.key)
@@ -104,7 +103,8 @@ class connection(object):
     def commit(self, context_transaction=False):
         if self.connection:
             if self.key and not context_transaction:
-                raise Exception('Connection was associated with Connection Context. Commits are not allowed. Use context_transaction if you want do it.')
+                raise Exception(
+                    'Connection was associated with Connection Context. Commits are not allowed. Use context_transaction if you want do it.')
             self.connection.commit()
 
     def rollback(self, context_transaction=False):
@@ -116,7 +116,8 @@ class connection(object):
     def close(self, context_transaction=False):
         if self.connection:
             if self.key and not context_transaction:
-                raise Exception('Connection was associated with Connection Context. Commits are not allowed. Use context_transaction if you want do it.')
+                raise Exception(
+                    'Connection was associated with Connection Context. Commits are not allowed. Use context_transaction if you want do it.')
             self.pool.putconn(self.connection, close=self.close_on_exit)
             self.closed = True
 
