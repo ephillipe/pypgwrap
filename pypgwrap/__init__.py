@@ -3,7 +3,7 @@ from connection import config_pool
 from context import ContextManager
 
 __author__ = 'Erick Almeida'
-version = "0.1.13"
+version = "0.1.16"
 __doc__ = """
 
     pypgwrap - efficient PostgreSQL database wrapper
@@ -314,6 +314,9 @@ __doc__ = """
                                     is discarded when execution is finished. No pooling is persisted. Util to use with
                                     PgPool or external pooling tools.
         *   0.1.13    17-09-2015  Fix use of ast.literal_eval to read Environment variable
+        *   0.1.14    27-10-2015  Change setup to remove install requirement to Psycopg2
+        *   0.1.15    18-03-2016  Create configuration in env PYPGWRAP_AUTOCOMMIT to avoid problems with PgBouncer
+        *   0.1.16    18-03-2016  Idem last version with bugfixes
 
     Author
     ------

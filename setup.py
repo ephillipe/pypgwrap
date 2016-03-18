@@ -5,7 +5,7 @@ try:
 except ImportError:
     from distutils.core import Command, setup
 
-version = "0.1.13"
+version = "0.1.16"
 description = 'PostgreSQL database wrapper - provides wrapper over psycopg2 supporting a Python API for common sql ' \
               'functions, transaction and pooling'
 long_description = file("README").read()
@@ -40,7 +40,7 @@ setup(name='pypgwrap',
       url='https://github.com/ephillipe/pypgwrap',
       cmdclass={'readme': GenerateReadme},
       packages=['pypgwrap'],
-      install_requires=['psycopg2'],
+      requires=['psycopg2'],
       license='BSD',
       classifiers=["Topic :: Database"]
 )

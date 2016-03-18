@@ -157,5 +157,41 @@ class MyTestCase(unittest.TestCase):
                 sleep(0.006)
 
 
+    def test_gevented_connections(self):
+
+        import gevent
+        from gevent import monkey; monkey.patch_all()
+        import psycogreen.gevent; psycogreen.gevent.patch_psycopg()
+
+        os.environ["PYPGWRAP_CLOSE_CONNECTION_ON_EXIT"] = str(True)
+        os.environ["PYPGWRAP_AUTOCOMMIT"] = str(True)
+        config_pool(max_pool=75,
+                    pool_expiration=10,
+                    url='postgres://karoo:k8EJB4Sm@0.0.0.0:5533/',
+                    pool_manager=ThreadedConnectionPool)
+
+        def db_command(i):
+            with ContextManager() as context:
+                print("ContextManager ID: " + str(i))
+                with connection() as db:
+                    print("Into of ContextManager ID: " + str(i))
+                    # Setup tables
+                    db.execute("SELECT pg_sleep(1);")
+                print("End od ContextManager ID: " + str(i))
+
+        threads = []
+        for i in range(1, 11):
+            print("Current Loop ID: " + str(i))
+            threads.append(gevent.spawn(db_command, i))
+        gevent.joinall(threads, timeout=30)
+
+        for i in range(1, 30):
+            print("Wainting "+str(i)+"s ...")
+            gevent.sleep(1)
+        print("End loop")
+
 if __name__ == '__main__':
-    unittest.main()
+    #unittest.main()
+    x = MyTestCase()
+    x.test_gevented_connections()
+

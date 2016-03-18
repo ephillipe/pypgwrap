@@ -1,3 +1,6 @@
+import ast
+import os
+
 __author__ = 'Erick Almeida'
 
 import datetime
@@ -33,6 +36,7 @@ class AbstractConnectionPool(object):
     def _connect(self, key=None):
         """Create a new connection and assign it to 'key' if not None."""
         conn = psycopg2.connect(*self._args, **self._kwargs)
+        conn.autocommit = ast.literal_eval(os.getenv('PYPGWRAP_AUTOCOMMIT', "True"))
         if key is not None:
             self._used[key] = conn
             self._rused[id(conn)] = key
@@ -52,14 +56,18 @@ class AbstractConnectionPool(object):
         self._keys += 1
         return self._keys
 
-    def _getconn(self, key=None):
+    def _getconn(self, key=None, exactly=False):
         """Get a free connection and assign it to 'key' if not None."""
+        internal_key = False
         if self.closed:
             raise PoolError("connection pool is closed")
         if key is None:
             key = self._getkey()
+            internal_key = True
         if key in self._used:
             return self._used[key]
+        if not internal_key and exactly:
+            return None
 
         if self._pool:
             self._used[key] = conn = self._pool.pop()
@@ -155,11 +163,11 @@ class ThreadedConnectionPool(AbstractConnectionPool):
         AbstractConnectionPool.__init__(self)
         self._lock = threading.Lock()
 
-    def getconn(self, key=None):
+    def getconn(self, key=None, exactly=False):
         """Get a free connection and assign it to 'key' if not None."""
         self._lock.acquire()
         try:
-            return self._getconn(key)
+            return self._getconn(key, exactly)
         finally:
             self._lock.release()
 
